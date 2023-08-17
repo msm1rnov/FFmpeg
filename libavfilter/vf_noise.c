@@ -210,8 +210,10 @@ static void noise(uint8_t *dst, const uint8_t *src,
             int shift = p->rand_shift[ix];
 
             if (flags & NOISE_AVERAGED) {
-                n->line_noise_avg(dst + x, src + x, w, (const int8_t**)p->prev_shift[ix]);
+                // changed the order of two following rows to eliminate the ambiguity of filter due to parallel processing
+                // before modifying p->prev_shift[ix] of only the first processed frame hadn't been reinitialized with noise + shift
                 p->prev_shift[ix][shift & 3] = noise + shift;
+                n->line_noise_avg(dst + x, src + x, w, (const int8_t**)p->prev_shift[ix]);
             } else {
                 n->line_noise(dst + x, src + x, noise, w, shift);
             }
